@@ -1,11 +1,12 @@
 /*
     Simple udp server
 */
-#include<stdio.h> //printf
-#include<string.h> //memset
-#include<stdlib.h> //exit(0);
-#include<arpa/inet.h>
-#include<sys/socket.h>
+#include <stdio.h> //printf
+#include <string.h> //memset
+#include <stdlib.h> //exit(0);
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
 #include "embedded_linux.h" 
 
@@ -42,10 +43,9 @@ int main(void){
     }
      
     //BEAGLEBONE
-        init_gpio(44, OUTPUT);
-        set_gpio_low(44);
-        //void init_analog_pins();
-         
+    init_gpio(44, OUTPUT);
+    set_gpio_low(44);
+    int cont = 0;        
     //keep listening for data
     while(1){
         memset(buf, 0x0, BUFLEN);
@@ -62,24 +62,16 @@ int main(void){
         printf("Data: %s\n", buf);
 
         //###BEAGLEBONE###
-        if(!strcmp(buf, "help")){
-            memset(resposta, 0x0, 100);
-        	strcpy(resposta, "\nHELP\n1- ledOn\n2- ledOff\n 3- readLed\n 4- readSensor\n 5- poweroff\n");
-        }
-        else if(!strcmp(buf, "ledOn")){
+        if(!strcmp(buf, "ledOn")){
             memset(resposta, 0x0, 100);
         	set_gpio_high(44);
-            if(get_value(44)){
-                strcpy(resposta, "Led ligado com sucesso");
-            }
+            strcpy(resposta, "Led ligado com sucesso");
         }
 
         else if(!strcmp(buf, "ledOff")){
             memset(resposta, 0x0, 100);
             set_gpio_low(44);
-            if(!get_value(44)){
-                strcpy(resposta, "Led desligado com sucesso");
-            }
+            strcpy(resposta, "Led desligado com sucesso");
         }
 
         else if(!strcmp(buf, "readLed")){
@@ -89,11 +81,6 @@ int main(void){
             }else{
                 strcpy(resposta, "O led está desligado!");
             }
-        }
-
-        else if(!strcmp(buf, "readSensor")){
-            memset(resposta, 0x0, 100);
-        	//retorna valor do sensor
         }
 
         else if(!strcmp(buf, "poweroff")){
@@ -111,8 +98,11 @@ int main(void){
         }
          
         //now reply the client with the same data
-        if(sendto(s, resposta, 100, 0, (struct sockaddr*) &si_other, slen) == -1){
-            die("sendto()");
+        cont++;
+        if(cont % 2){
+            if(sendto(s, resposta, strlen(resposta), 0, (struct sockaddr*) &si_other, slen) == -1){
+                die("sendto()");
+            }
         }
     }
     close(s);

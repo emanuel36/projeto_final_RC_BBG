@@ -1,7 +1,7 @@
 CC = gcc
 INC = -I./inc
 
-all: folder server client send
+all: folder server client 
 
 beaglebone: folder server client
 
@@ -21,7 +21,7 @@ embedded_linux.o:
 	$(CC) -o embedded_linux.o -c $(INC) src/embedded_linux.c -o obj/embedded_linux.o 
 
 send:
-	scp -r ../Trabalho\ Final/ root@192.168.1.11:~/
+	scp -r ..projeto_final_RC_BBG root@192.168.1.18:~/
 
 folder: 
 	mkdir -p obj APP
